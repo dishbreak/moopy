@@ -9,7 +9,7 @@ import json
 RTM_AUTH_SERVICE = "https://www.rememberthemilk.com/services/auth/"
 
 
-def get_signature(params, shared_secret):
+def get_signature(params, shared_secret=constants.SHARED_SECRET):
     keys = params.keys()
     keys.sort()
     md5 = hashlib.md5()

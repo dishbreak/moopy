@@ -1,5 +1,49 @@
 #!/usr/bin/env python
+import sys
+from lib import lists, tasks, common
 
-from lib import auth
 
-print(auth.get_token())
+def print_lists(args):
+    results = lists.get_lists()
+    for list in results:
+        print("* {} - {}".format(list['id'], list['name']))
+
+
+def print_tasks(args):
+    task_lists = lists.get_lists()
+    list_obj = None
+    if len(args) < 1:
+        list_obj = lists.get_list_by_name()  # should default to Inbox
+    else:
+        list_obj = lists.get_list_by_name(args[0])
+
+    results = tasks.get_list(list_id=list_obj['id'], filter="due:today")
+    for task in results:
+        print("[] {}".format(task['name']))
+    if len(results) == 0:
+        print("Woohoo! no tasks due today.")
+
+
+def add_task(args):
+    timeline = common.generate_timeline()
+
+    list_name = None
+    if len(args) == 1:
+        task_string = args[0]
+        tasks.add(timeline=timeline, name=task_string)
+    if len(args) > 2:
+        list_name = args[0]
+        list_id = lists.get_list_by_name(list_name)['id']
+        task_string = args[1]
+        tasks.add(timeline=timeline, name=task_string, list_id=list_id)
+
+
+commands = {
+    "lists": print_lists,
+    "tasks": print_tasks,
+    "task": add_task
+}
+
+if __name__ == '__main__':
+    command = commands[sys.argv[1]]
+    command(sys.argv[2:])
